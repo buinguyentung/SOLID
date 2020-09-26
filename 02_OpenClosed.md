@@ -88,3 +88,66 @@ Chương trình đã thỏa mãn OCP. Nó thay đổi bằng cách viết thêm 
 Tuy nhiên, nếu chúng ta quyết định rằng các hình tròn phải được vẽ trước các hình Vuông. Hàm *DrawAllShape* sẽ phải thay đổi, ít ra là duyệt list tìm vẽ các hình tròn, sau đó cho hình vuông. *DrawAllShape* không hề đóng với sự thay đổi này.
 
 Vậy giải pháp là gì?
+
+## Dự đoán và cấu trúc “tự nhiên”
+
+Chúng ta đã dự đoán trước một sự thay đổi, giờ cần phải thiết kế một abstraction để giải quyết vấn đề. Có thể thấy rằng abstraction trong hình 9-2 không hề thỏa mãn. Base class *Shape* và các lớp dẫn xuất *Circle* và *Square* là không *“tự nhiên”* – nghĩa là *một mô hình tốt nhất trong thực tế*, vì mô hình này không hề phù hợp cho các hệ thống đòi hỏi sự sắp xếp đi kèm với kiểu hình.
+
+> Rút ra: Dù tính đóng của module đã được thiết kế tốt như thế nào, sẽ luôn tồn tại một số thay đổi mà nó không thể đóng. Không một mô hình nào là "tự nhiên" trong mọi ngữ cảnh.
+
+Người thiết kế phải dự đoán những kiểu thay đổi nào sẽ xảy ra thường xuyên. Lựa chọn những thay đổi cần phải đóng với thiết kế, và xây dựng abstraction phù hợp. Việc dự đoán này đòi hỏi nhiều từ kinh nghiệm có sẵn của những người thiết kế, họ đã gặp và xử lý những vấn đề tương tự khi phát triển các ứng dụng trong quá khứ, họ áp dụng OCP cho những thay đổi có thể xảy ra nhất. Tất nhiên thỉnh thoảng dự đoán cũng có thể sai.
+
+Bên cạnh đó, việc thỏa mãn OCP cũng tiêu tốn thời gian phát triển và công sức để thiết kế các abstraction hợp lý. Những abstraction này sẽ làm tăng độ phức tạp của chương trình. Chúng ta chỉ nên giới hạn áp dụng OCP cho những thay đổi có thể xảy ra.
+
+Bằng cách nào có thể xác định các sự thay đổi: chúng ta phân tích các yêu cầu hệ thống, đặt ra những câu hỏi, sử dụng kinh nghiệm, và cuối cùng là chờ cho sự thay đổi xảy ra trên thực tế.
+
+> *"Fool me once, shame on you. Fool me twice, shame on me."*
+
+Đây là một tư tưởng mạnh mẽ trong thiết kế phần mềm. Để tránh sự phức tạp không cần thiết, chúng ta cho phép lỗi lầm xảy ra một lần. Chúng ta viết code và hi vọng không có gì thay đổi. Khi sự thay đổi xảy ra, chúng ta áp dụng abstraction để đóng đối với những kiểu thay đổi tương tự.
+
+## Mô phỏng sự thay đổi
+
+Chúng ta mô phỏng sự thay đổi càng sớm thì càng có nhiều thời gian để sửa đổi:
+
+1. Viết system test. Test là một cách để sử dụng hệ thống. Bằng cách viết test, chúng ta xây dựng một hệ thống có thể test được, đồng nghĩa với việc xây dựng các abstraction cho việc test. Những abstraction này sẽ giúp hệ thống tránh khỏi những thay đổi trong tương lai.
+2. Kế hoạch cho vòng đời phát triển ngắn: vài ngày thay cho vài tuần.
+3. Phát triển các tính năng trước khi cấu trúc và thường xuyên trình bày tính năng trước khách hàng.
+4. Phát triển các tính năng quan trọng trước.
+5. Thường xuyên phát hành phần mềm cho khách hàng và người dùng.
+
+## Quay lại bài toán Shape
+
+Hàm *DrawAllShape* cần phải đóng với những thay đổi liên quan tới việc vẽ hình theo thứ tự. Chúng ta cần có abstraction cho việc sắp xếp. Abstraction này cung cấp một abstract interface cho các luật sắp xếp có thể có.
+
+Một luật sắp xếp là khi cho hai object, luật lựa chọn object nào được vẽ trước. Chúng ta thiết kế abstraction *IComparable* có một phương thức *CompareTo*. Phương thức nhận một tham số là một object, trả về -1 khi object nhỏ hơn tham số, 0 nếu chúng bằng nhau, và 1 nếu object lớn hơn tham số.
+
+Hình 9-3 trình bày class *Shape* khi mở rộng interface *IComparable*.
+
+![image](https://user-images.githubusercontent.com/27339791/94325297-07587080-ffc8-11ea-897f-0ac48879aeba.png)
+
+Hình 9-4 trình bày hàm *DrawAllShape*, gọi phương thức sắp xếp trước khi vẽ.
+
+![image](https://user-images.githubusercontent.com/27339791/94325318-18a17d00-ffc8-11ea-918e-7fa81ab86872.png)
+
+Các object *Shape* cần phải override phương thức *CompareTo*. Có vẻ như đây không phải là một abstract tốt. Ví dụ với *Cirle.CompareTo* như sau:
+
+![image](https://user-images.githubusercontent.com/27339791/94325335-25be6c00-ffc8-11ea-8f75-132a284bdd42.png)
+
+Có thể thấy rằng, hàm *CompareTo* không hề thỏa mãn OCP. Nó không đóng với các kiểu hình mới, vì ta sẽ phải viết lại hàm *CompareTo* ở tất cả các lớp khi một kiểu hình mới được tạo. Chúng ta đã thiết kế lỗi lần thứ nhất.
+
+## Sử dụng Data-Driven
+
+Chúng ta phải đóng quan hệ giữa các lớp dẫn xuất của class *Shape*. Hình 9-6 trình bày một ví dụ sử dụng data-driven.
+
+![image](https://user-images.githubusercontent.com/27339791/94325386-56060a80-ffc8-11ea-86d4-784fab515011.png)
+![image](https://user-images.githubusercontent.com/27339791/94325420-78982380-ffc8-11ea-81fb-22f2be8aa1fe.png)
+
+Sử dụng data-driven, chúng ta đã đóng hàm *DrawAllShapes* với các vấn đề liên quan tới sắp xếp thứ tự, quan hệ giữa các dẫn xuất của class *Shape* với các dẫn xuất mới, hoặc thay đổi luật sắp xếp nếu có (ví dụ khách hàng đổi yêu cầu hình vuông phải được vẽ trước hình tròn).
+
+## Tổng kết
+
+OCP là một nguyên lý thiết kế đòi hỏi áp dụng cả tính trừu tượng, tính kế thừa, và tính đa hình của hướng đối tượng.
+
+OCP là trái tim của thiết kế hướng đối tượng theo nhiều nghĩa. Thỏa mãn nguyên lý này mang lại cho chúng ta những lợi ích tốt nhất của công nghệ hướng đối tượng: tính linh hoạt, tái sử dụng và tính duy trì.
+
+Việc thỏa mãn nguyên lý không thể đạt được đơn giản bằng cách sử dụng một ngôn ngữ lập trình hướng đối tượng hay áp dụng tràn lan abtraction vào mọi thành phần của ứng dụng. Mà nó đòi hỏi sự kinh nghiệm và sự tập trung của người thiết kế dành cho các thành phần thường xuyên hoặc có thể phải thay đổi. *Tránh các sự trừu tượng không cần thiết cũng quan trọng như là tính trừu tượng vậy.*
