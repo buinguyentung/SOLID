@@ -28,13 +28,15 @@ Hình 9-2 biểu diễn một thiết kế thỏa mãn OCP sử dụng *STRATEGY
 
 Cần để ý là các object *Client* sẽ sử dụng các object của lớp *Server*. Nếu chúng ta muốn một object *Client* sử dụng một class *Server* khác, một lớp dẫn xuất của class *ClientInterface* có thể được tạo ra. Class *Client* không phải thay đổi gì.
 
-Client có một danh sách các công viêc cần phải thực hiện, ta định nghĩa chúng thành các phương thức trừu tượng trong *ClientInterface*. Các lớp con của *ClientInterface* tự do định nghĩa cụ thể các phương thức theo cách chúng muốn. Do đó, các hành vi của Client có thể được mở rộng bằng cách tạo thêm các class con của ClientInterface.
+Client có một danh sách các công viêc cần phải thực hiện, ta định nghĩa chúng thành các phương thức trừu tượng trong *ClientInterface*. Các lớp con của *ClientInterface* tự do định nghĩa cụ thể các phương thức theo cách chúng muốn. Do đó, các hành vi của *Client* có thể được mở rộng bằng cách tạo thêm các class con của *ClientInterface*.
 
-Tại sao tác giả lại đặt tên là **ClientInterface**, chứ không phải là **AbstractServer**?
+_Bạn có thể thắc mắc:_ Tại sao tác giả lại đặt tên là **ClientInterface**, chứ không phải là **AbstractServer**?
 
 > “Abstract classes are more closely associated to their clients than to the classes that implement them.”
 
-Nghĩa là khi chúng ta định nghĩa một abstract class thì chúng ta biết nó phải làm những cái gì, phục vụ mục đích gì và hướng tới Client nào. Abstract class không biết các sub class phát triển nó ra sao.
+* Nghĩa là khi chúng ta định nghĩa một abstract class thì chúng ta biết nó phải làm những cái gì, phục vụ mục đích gì và hướng tới Client nào. Abstract class không biết các class con phát triển nó ra sao, hay có bao nhiêu class con kế thừa nó, **đây là tính mở của OCP**.
+
+* Mở rộng ra, các abstract class đảm bảo thực hiện đúng các business của client, vô hình chung đặt ra một quy tắc cho các lớp con: không thay đổi tính chất của abstract class, **đây là tính đóng của OCP**.
 
 Hình 9-3 biểu diễn mộ thiết kế khách sử dụng *TEMPLATE METHOD* pattern.
 
@@ -69,11 +71,13 @@ Thiết kế này vi phạm OCP vì nó không thể đóng với sự thay đ�
 
 Vậy chúng ta không chỉ thay đổi code của tất cả các câu lệnh rẽ nhánh switch/case hoặc if/else, mà còn phải biên dịch lại file binary của tất cả các module sử dụng cấu trúc dữ liệu Shape. Một hành động thêm loại hình mới đơn giản, mà kéo theo một chuỗi hành động phức tạp là hệ quả của một thiết kế tồi .
 
-## Thiết kế thõa mãn OCP
+## Thiết kế thỏa mãn OCP
 
 Hình 9-2 trình bày một đoạn code cho giải pháp thỏa mãn OCP. Chúng ta có một abstract class tên là *Shape*. Abstract class này chỉ có một hàm ảo (abstract method) là *Draw*. Lớp *Circle* và *Square* là các lớp dẫn xuất của *Shape*.
 
 ![image](https://user-images.githubusercontent.com/27339791/94213795-fe04d080-ff01-11ea-9bcb-a8ca5abab18a.png)
+
+Tham khảo Java code: [Shape example 1](https://github.com/buinguyentung/SOLID/blob/master/Projects/01_ShapeExample1/src/bnt/solid/ShapeExample.java)
 
 Khi chúng ta muốn vẽ một loại hình mới, thì chỉ cần thêm một lớp dẫn xuất của *Shape*. Hàm *DrawAllShapes* không phải thay đổi, nên nó thỏa mãn OCP. Hành vi của *DrawAllShapes* đã được mở rộng mà không phải thay đổi. Hơn nữa việc thêm class *Triangle* sẽ không ảnh hưởng gì tới các module được viết ở trên, tất nhiên một số phần khác của hệ thống phải thay đổi để làm việc với class *Triangle*, nhưng không phải là đoạn code ở hình 9-2.
 
@@ -81,21 +85,21 @@ Trên thực thế, class *Shape* có nhiều phương thức khác, việc thê
 
 Giải pháp này cũng không hề cứng nhắc. Không tồn tại source module phải thay đổi, không module binary phải biên dịch lại ngoài một ngoại lệ. Chính là module tạo instance của lớp dẫn xuất mới của class *Shape*. Thông thường, đó là module *main*, hoặc một hàm nào đó gọi bởi *main*, hoặc trong phương thức của một object tạo bởi *main* (Những object này được gọi là *factory* – Tham khảo Factory pattern sau).
 
-Cuối cùng, giải pháp này không cố định (immobile). Hàm *DrawAllShape* có thể được sử dụng lại bởi bất kỳ ứng dụng nào mà không cần khai báo thêm *Circle* hoặc *Square*. Có thể thấy giải pháp này đã tránh được các tính chất của một thiết kế tồi.
-
-Chương trình đã thỏa mãn OCP. Nó thay đổi bằng cách viết thêm code mới mà không thay đổi code hiện tại. Thay đổi duy nhất là thêm module mới và module main khởi tạo object của module đó.
-
-Tuy nhiên, nếu chúng ta quyết định rằng các hình tròn phải được vẽ trước các hình Vuông. Hàm *DrawAllShape* sẽ phải thay đổi, ít ra là duyệt list tìm vẽ các hình tròn, sau đó cho hình vuông. *DrawAllShape* không hề đóng với sự thay đổi này.
-
-Vậy giải pháp là gì?
+Cuối cùng, giải pháp này không bị cố định (immobile). Hàm *DrawAllShape* có thể được sử dụng lại bởi bất kỳ ứng dụng nào mà không cần khai báo thêm *Circle* hoặc *Square*. Có thể thấy giải pháp này đã tránh được các tính chất của một thiết kế tồi.
 
 ## Dự đoán và cấu trúc “tự nhiên”
 
-Chúng ta đã dự đoán trước một sự thay đổi, giờ cần phải thiết kế một abstraction để giải quyết vấn đề. Có thể thấy rằng abstraction trong hình 9-2 không hề thỏa mãn. Base class *Shape* và các lớp dẫn xuất *Circle* và *Square* là không *“tự nhiên”* – nghĩa là *một mô hình tốt nhất trong thực tế*, vì mô hình này không hề phù hợp cho các hệ thống đòi hỏi sự sắp xếp đi kèm với kiểu hình.
+Chương trình ở phần trước đã thỏa mãn OCP đối với các yêu cầu ban đầu của ứng dụng Shape. Nó thay đổi bằng cách viết thêm code mới mà không thay đổi code hiện tại. Thay đổi duy nhất là thêm module mới (ví dụ *Triangle*) và module main khởi tạo object của module đó.
 
-> Rút ra: Dù tính đóng của module đã được thiết kế tốt như thế nào, sẽ luôn tồn tại một số thay đổi mà nó không thể đóng. Không một mô hình nào là "tự nhiên" trong mọi ngữ cảnh.
+Tuy nhiên, nếu chúng ta quyết định rằng các hình tròn phải được vẽ trước các hình Vuông. Hàm *DrawAllShape* sẽ phải thay đổi, ít ra là duyệt list tìm vẽ các hình tròn, sau đó cho hình vuông. *DrawAllShape* không hề đóng với sự thay đổi này.
 
-Người thiết kế phải dự đoán những kiểu thay đổi nào sẽ xảy ra thường xuyên. Lựa chọn những thay đổi cần phải đóng với thiết kế, và xây dựng abstraction phù hợp. Việc dự đoán này đòi hỏi nhiều từ kinh nghiệm có sẵn của những người thiết kế, họ đã gặp và xử lý những vấn đề tương tự khi phát triển các ứng dụng trong quá khứ, họ áp dụng OCP cho những thay đổi có thể xảy ra nhất. Tất nhiên thỉnh thoảng dự đoán cũng có thể sai.
+*Giải pháp là gì?*
+
+Chúng ta đã dự đoán trước một sự thay đổi, giờ cần phải thiết kế một abstraction để giải quyết vấn đề. Có thể thấy rằng abstraction trong hình 9-2 không hề thỏa mãn. Base class *Shape* và các lớp dẫn xuất *Circle* và *Square* là không *“tự nhiên”* – nghĩa là *một mô hình tốt nhất trong thực tế*, vì mô hình này không hề phù hợp cho các hệ thống đòi hỏi sự sắp xếp đi kèm với kiểu hình học.
+
+> Rút ra: Dù tính đóng của module đã được thiết kế tốt như thế nào, sẽ luôn tồn tại một số ngữ cảnh mà nó không thể đóng với sự thay đổi. Không một mô hình nào là "tự nhiên" trong mọi ngữ cảnh.
+
+Người thiết kế phải dự đoán những kiểu thay đổi nào sẽ xảy ra thường xuyên. Lựa chọn những thay đổi cần phải đóng với thiết kế, và xây dựng abstraction phù hợp. Việc dự đoán này đòi hỏi nhiều từ kinh nghiệm của những người thiết kế, họ đã từng gặp và xử lý những vấn đề tương tự khi phát triển các ứng dụng trong quá khứ, họ áp dụng OCP cho những thay đổi có thể xảy ra nhất. Tất nhiên thỉnh thoảng dự đoán cũng có thể sai.
 
 Bên cạnh đó, việc thỏa mãn OCP cũng tiêu tốn thời gian phát triển và công sức để thiết kế các abstraction hợp lý. Những abstraction này sẽ làm tăng độ phức tạp của chương trình. Chúng ta chỉ nên giới hạn áp dụng OCP cho những thay đổi có thể xảy ra.
 
@@ -119,7 +123,7 @@ Chúng ta mô phỏng sự thay đổi càng sớm thì càng có nhiều thời
 
 Hàm *DrawAllShape* cần phải đóng với những thay đổi liên quan tới việc vẽ hình theo thứ tự. Chúng ta cần có abstraction cho việc sắp xếp. Abstraction này cung cấp một abstract interface cho các luật sắp xếp có thể có.
 
-Một luật sắp xếp là khi cho hai object, luật lựa chọn object nào được vẽ trước. Chúng ta thiết kế abstraction *IComparable* có một phương thức *CompareTo*. Phương thức nhận một tham số là một object, trả về -1 khi object nhỏ hơn tham số, 0 nếu chúng bằng nhau, và 1 nếu object lớn hơn tham số.
+if Một luật sắp xếp là khi cho hai object, luật lựa chọn object nào được vẽ trước. Chúng ta thiết kế abstraction *IComparable* có một phương thức *CompareTo*. Phương thức nhận một tham số là một object, trả về -1 khi object nhỏ hơn tham số, 0 nếu chúng bằng nhau, và 1 nếu object lớn hơn tham số.
 
 Hình 9-3 trình bày class *Shape* khi mở rộng interface *IComparable*.
 
@@ -133,11 +137,15 @@ Các object *Shape* cần phải override phương thức *CompareTo*. Có vẻ 
 
 ![image](https://user-images.githubusercontent.com/27339791/94325335-25be6c00-ffc8-11ea-8f75-132a284bdd42.png)
 
+Tham khảo Java code: [Shape example with Comparable](https://github.com/buinguyentung/SOLID/blob/master/Projects/02_ShapeExample2/src/bnt/solid/ShapeExample.java)
+
 Có thể thấy rằng, hàm *CompareTo* không hề thỏa mãn OCP. Nó không đóng với các kiểu hình mới, vì ta sẽ phải viết lại hàm *CompareTo* ở tất cả các lớp khi một kiểu hình mới được tạo. Chúng ta đã thiết kế lỗi lần thứ nhất.
 
 ## Sử dụng Data-Driven
 
 Chúng ta phải đóng quan hệ giữa các lớp dẫn xuất của class *Shape*. Hình 9-6 trình bày một ví dụ sử dụng data-driven.
+
+Tham khảo Java code: [Shape example with Compator]()
 
 ![image](https://user-images.githubusercontent.com/27339791/94325386-56060a80-ffc8-11ea-86d4-784fab515011.png)
 ![image](https://user-images.githubusercontent.com/27339791/94325420-78982380-ffc8-11ea-81fb-22f2be8aa1fe.png)
