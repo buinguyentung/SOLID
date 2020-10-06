@@ -3,11 +3,11 @@ package bnt.solid;
 import java.util.ArrayList;
 import java.util.List;
 
-interface Shape {
+interface IShape {
 	void draw();
 }
 
-class Square implements Shape {
+class Square implements IShape {
 	private int side;
 
 	Square(int side) {
@@ -20,16 +20,16 @@ class Square implements Shape {
 	}
 }
 
-class Round implements Shape {
+class Circle implements IShape {
 	private int radius;
 
-	Round(int radius) {
+	Circle(int radius) {
 		this.radius = radius;
 	}
 
 	@Override
 	public void draw() {
-		System.out.println("Draw Round " + radius);
+		System.out.println("Draw Circle " + radius);
 	}
 }
 
@@ -38,28 +38,32 @@ class Round implements Shape {
  * draw all shapes in the list. <br>
  * 
  * What if we want to add more shapes? Good
- * What if we want to draw Round before Square? Not good anymore! 
+ * What if we want to draw Circle before Square? Not good anymore! 
  * 
  * @author Admin
  *
  */
 public class ShapeExample {
 
-	public static void drawAllShapes(List<Shape> shapes) {
-		for (Shape shape : shapes) {
+	public static void drawAllShapes(List<IShape> shapes) {
+		for (IShape shape : shapes) {
 			shape.draw();
 		}
 	}
 
 	public static void main(String[] args) {
-		List<Shape> shapes = new ArrayList<>();
-		Shape shape = new Round(1);
+		List<IShape> shapes = new ArrayList<>();
+		IShape shape = new Circle(1);
 		shapes.add(shape);
 		shape = new Square(2);
 		shapes.add(shape);
-		shape = new Round(3);
+		shape = new Circle(3);
 		shapes.add(shape);
 		shape = new Square(4);
+		shapes.add(shape);
+		shape = new Square(5);
+		shapes.add(shape);
+		shape = new Circle(6);
 		shapes.add(shape);
 
 		drawAllShapes(shapes);
