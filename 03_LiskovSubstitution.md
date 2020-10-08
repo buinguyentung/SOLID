@@ -18,9 +18,9 @@ Tác giả của hàm f sẽ cố gắng tạo một số test case cho D, để
 
 ## Ví dụ trong đời sống
 
-Ta lên kế hoạch bán hàng online và cần tìm hiểu dịch vụ chuyển phát nhanh bưu kiện tới khách hàng. Dịch vụ shipper (*abstraction*) ta quan tâm cần phải cung cấp đẩy đủ các phương tiện vận chuyển phù hợp với tất cả kích cỡ hàng hóa và yêu cầu về thời gian vận chuyển như xe máy, ô tô, tàu hỏa,… Đồng thời họ phải hỗ trợ các loại thanh toán bằng tiền mặt, chuyển khoản hoặc quẹt thẻ. Ta quyết định lựa chọn công ty A (*instance*) vì theo quảng cáo họ đáp ứng được đẩy đủ các yêu cầu trên.
+Ta lên kế hoạch bán hàng online và cần tìm hiểu dịch vụ chuyển phát nhanh bưu kiện tới khách hàng. Dịch vụ shipper (*abstraction*) ta yêu cầu phải cung cấp đẩy đủ các phương tiện vận chuyển phù hợp với tất cả kích cỡ hàng hóa như xe máy, ô tô, tàu hỏa,… và linh hoạt thời gian vận chuyển (chuyển phát nhanh, tiêu chuẩn). Đồng thời họ phải hỗ trợ các loại thanh toán bằng tiền mặt, chuyển khoản hoặc quẹt thẻ. Ta quyết định lựa chọn công ty A (*an instance*) vì theo quảng cáo họ đáp ứng được đẩy đủ các yêu cầu trên.
 
-Hợp đồng được ký kết. Ta hài lòng cho tới khi đơn hàng đầu tiên được chuyển đi thì phát hiện ra rằng: công ty A sử dụng máy POS kiểu cũ nên chỉ hỗ trợ quẹt thẻ từ, chứ không quẹt được thẻ chip mới (loại đang được ngân hàng chuyển đổi). Như vậy đối tượng A đã không giống với mô tả abstraction ban đầu.
+Hợp đồng được ký kết. Những đơn hàng được chuyển phát nhanh chóng, cho tới khi thanh toán thì chúng ta phát hiện ra rằng: công ty A sử dụng máy POS kiểu cũ nên chỉ hỗ trợ quẹt thẻ từ, chứ không quẹt được thẻ chip mới. Như vậy đối tượng A đã không giống với mô tả abstraction ban đầu.
 
 # Vi phạm LSP
 
@@ -31,3 +31,76 @@ Việc vi phạm LSP thưởng gây ra hậu quả là phải kiểm tra kiểu 
 ![image](https://user-images.githubusercontent.com/27339791/94753462-81b63580-03b8-11eb-99e5-22d30c9dcd70.png)
 
 Rõ ràng hàm *DrawShape* vi phạm OCP vì nó phải biết tất cả các dẫn xuất của class *Shape*, và phải thay đổi mỗi khi dẫn xuất mới được thêm vào.
+
+Engineer Joe sau khi học về lập trình hướng đối tượng đã kết luận rằng tính đa hình là quá phức tạp cho trường hợp này. Do đó anh ta định nghĩa class *Shape* mà không có phương thức nào. Các class *Square* và *Circle* dẫn xuất từ *Shape* có phương thức *Draw()*, nhưng không phải là ghi đè từ class *Shape*. Vì *Circle* và *Square* không thể thay thế cho *Shape*, *DrawShape* phải xác định loại hình cần vẽ, sau đó gọi phương thức *Draw* tương ứng.
+
+Vấn đề là *Square* và *Circle* không thể thay thế cho *Shape* vi phạm LSP. Vi phạm này dẫn đến phương thức *DrawShape* vi phạm OCP.
+
+> Sự vi phạm LSP là hệ quả của sự vi phạm OCP.
+
+## Một vi phạm khôn khéo hơn
+
+Cùng tham khảo một chương trình sử dụng class *Rectangle* ví dụ 10-2.
+
+![image](https://user-images.githubusercontent.com/27339791/95398597-686d3600-0930-11eb-8941-4dfb59ad0ff5.png)
+
+Chương trình hoạt động tốt và được triển khai ở nhiều nơi. Cho đến một ngày, khách hàng yêu cầu thêm các hình vuông (squares).
+
+Thông thường **kế thừa là quan hệ IS-A**. Nghĩa là ta nói một loại object mới có quan hệ IS-A với một loại object cũ thì class của object mới nên là lớp dẫn xuất từ class của object cũ.
+
+Rõ ràng hình vuông là một hình chữ nhật nên chúng ta thiết kế class *Square* kế thừa từ class *Rectangle*.
+
+![image](https://user-images.githubusercontent.com/27339791/95399123-a61e8e80-0931-11eb-903f-5c8dd756b36a.png)
+
+Sử dụng quan hệ IS-A thường được coi là kỹ thuật cơ bản của hướng đối tượng, được sử dụng nhiều nhưng hiếm khi được định nghĩa. Hình vuông là hình chữ nhật nên class *Square* là dẫn xuất từ class *Rectangle*. Suy nghĩ này có thể dẫn đến vấn đề nghiêm trọng mà ta chưa thấy khi thiết kế.
+
+Điểm đầu tiên là một hình vuông không cần phải có cả hai thuộc tính *Height* và *Width* mà nó kế thừa từ class *Rectangle*. Sự phí phạm này sẽ trở thành vấn đề khi chương trình chúng ta phải tạo hàng trăm ngàn hình vuông.
+
+Nếu chúng ta bỏ qua sự quan tâm tới memory (giả sử thôi^^) thì chúng ta lại gặp ngay vấn đề khác. Hình vuông có chiều dài và chiều rộng bằng nhau nên các setter cho hai thuộc tính *Height* và *Width* là không chính xác. Chúng ta lại vá bằng cách ghi đè như sau:
+
+![image](https://user-images.githubusercontent.com/27339791/95399854-5b9e1180-0933-11eb-80bd-6ba70969e330.png)
+
+Bây giờ khi chiểu rộng của object *Square* được thay đổi thì chiều dài của nó cũng đổi theo và ngược lại. Về mặt toán học, object *Square* giữ được tính chất của hình vuông.
+
+```C
+Square s = new Square();
+s.SetWidth(1); // Height cũng bằng 1.
+s.setHeight(2); // Width cũng bằng 2.
+```
+
+Hãy xem xét hàm sau:
+
+```C
+void f(Rectangle r) {
+    r.setWidth(32); // gọi Rectangle.setWidth
+}
+```
+
+Nếu chúng ta truyền một tham chiếu của object *Square* vào hàm này, object *Square* sẽ đổ vỡ vì chiều dài sẽ không thay đổi. Đây là sự vi phạm LSP. Hàm f không hoạt động với các dẫn xuất của tham số. Lý do là *Height* và *Width* không được khai báo virtual trong *Rectangle* nên nó không có tính đa hình.
+
+Chúng ta có thể sửa bằng cách chuyển các phương thức setter thành virtual. Tuy nhiên việc thêm lớp dẫn xuất mới khiến base class phải thay đổi là vi phạm OCP. Chúng ta phải giải trình lý do sửa phương thức thành virtual là không lường trước được sự tồn tại của class *Square*.
+
+Giả sử khách hàng chấp nhận thay đổi code:
+
+![image](https://user-images.githubusercontent.com/27339791/95400932-22b36c00-0936-11eb-96f1-b36897986da3.png)
+
+Bây giờ cả *Square* và *Rectangle* đều hoạt động tốt (bỏ qua vấn đề về bộ nhớ). Hình vuông và hình chữ nhật được đảm bảo về mặt toán học. Ta hoàn toàn có thể truyền một hình vuông vào hàm có tham số là hình chữ nhật. Thiết kế đã thực sự tốt chưa?
+
+## Vấn đề thực sự
+
+Xem xét hàm g.
+
+```C
+void g(Rectangle r) {
+    r.Width = 5;
+    r.Height = 4;
+    if (r.Area() != 20)
+        throw new Exception("Bad area!");
+}
+```
+
+Hàm g gọi các thuộc tính *Width* và *Height* của *Rectangle*. Hàm này hoạt động tốt với *Rectangle* nhưng sẽ tạo Exception khi ta truyền vào *Square*. Tác giả của hàm g tin rằng *khi thay đổi chiều rộng của hình chữ nhật thì chiều dài của nó không thay đổi*.
+
+Hàm g trở nên dễ vỡ với phân cấp *Square/Rectangle*. *Square* không thể thay thế cho *Rectangle* trong các trường hợp tương tự. Quan hệ giữa chúng vi phạm LSP.
+
+Nếu chúng ta đổ lỗi cho hàm g rằng tác giả không thể giả định chiều dài và chiều rộng là độc lập nhau. Điều này là không hợp lý. Hiển nhiên một hình chữ nhật có chiều dài và chiều rộng độc lập nhau. Chính tác giả của class *Square* đã vi phạm điều hiển nhiên này. Chúng ta không vi phạm tính chất của *Square* nhưng khi kế thừa *Square* từ *Rectangle*, ta đã vi phạm tính chất của *Rectangle*.
