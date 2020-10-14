@@ -5,7 +5,7 @@ Open/Closed Principle (OCP) chủ yếu dựa trên tính trừu tượng và t�
 Vậy quy tắc thiết kế nào quản lý việc kế thừa? Quy định các tính chất của một phân cấp kế thừa tốt nhất? Các lỗi chúng ta hay gặp khiến việc phân cấp kế thừa làm thiết kế không còn thỏa mãn OCP?
 Câu trả lời nằm ở LSP.
 
-> **Kiểu con phải có thể thay thế được cho kiểu cơ sở.** <br>
+> **Các kiểu con phải có thể thay thế được cho các kiểu cha.** <br>
 Subtypes must be substitutable for their base types.
 
 Năm 1988, Barbara Liskov viết nguyên lý này như sau:
@@ -78,11 +78,11 @@ void f(Rectangle r) {
 
 Nếu chúng ta truyền một tham chiếu của object *Square* vào hàm này, object *Square* sẽ đổ vỡ vì chiều dài sẽ không thay đổi. Đây là sự vi phạm LSP. Hàm f không hoạt động với các dẫn xuất của tham số. Lý do là *Height* và *Width* không được khai báo virtual trong *Rectangle* nên nó không có tính đa hình.
 
-Chúng ta có thể sửa bằng cách chuyển các phương thức setter thành virtual. Tuy nhiên việc thêm lớp dẫn xuất mới khiến base class phải thay đổi là vi phạm OCP. Chúng ta phải giải trình lý do sửa phương thức thành virtual là không lường trước được sự tồn tại của class *Square*.
+Chúng ta có thể sửa bằng cách chuyển các phương thức setter thành virtual. Tuy nhiên việc thêm lớp dẫn xuất mới khiến class cơ sở phải thay đổi là vi phạm OCP. Chúng ta phải giải trình lý do sửa phương thức thành virtual là không lường trước được sự tồn tại của class *Square*.
 
 Giả sử khách hàng chấp nhận thay đổi code:
 
-![image](https://user-images.githubusercontent.com/27339791/95400932-22b36c00-0936-11eb-96f1-b36897986da3.png)
+![image](https://user-images.githubusercontent.com/27339791/95925338-c643c700-0de3-11eb-80fe-45826a3dc926.png)
 
 Bây giờ cả *Square* và *Rectangle* đều hoạt động tốt (bỏ qua vấn đề về bộ nhớ). Hình vuông và hình chữ nhật được đảm bảo về mặt toán học. Ta hoàn toàn có thể truyền một hình vuông vào hàm có tham số là hình chữ nhật. Thiết kế đã thực sự tốt chưa?
 
@@ -104,3 +104,50 @@ Hàm g gọi các thuộc tính *Width* và *Height* của *Rectangle*. Hàm nà
 Hàm g trở nên dễ vỡ với phân cấp *Square/Rectangle*. *Square* không thể thay thế cho *Rectangle* trong các trường hợp tương tự. Quan hệ giữa chúng vi phạm LSP.
 
 Nếu chúng ta đổ lỗi cho hàm g rằng tác giả không thể giả định chiều dài và chiều rộng là độc lập nhau. Điều này là không hợp lý. Hiển nhiên một hình chữ nhật có chiều dài và chiều rộng độc lập nhau. Chính tác giả của class *Square* đã vi phạm điều hiển nhiên này. Chúng ta không vi phạm tính chất của *Square* nhưng khi kế thừa *Square* từ *Rectangle*, ta đã vi phạm tính chất của *Rectangle*.
+
+## Sự công nhận không thuộc về bản chất
+
+LSP đưa ra một kết luận quan trọng: *Một mô hình, xem xét một cách độc lập, không thể được đánh giá đầy đủ.* Công nhận một mô hình chỉ có thể được thực hiện theo cái nhìn của các *"client"* sử dụng mô hình đó. Ví dụ khi chúng ta kiểm tra phiên bản cuối của lớp *Square* và *Rectangle* độc lập, chúng ta thấy rằng chúng là nhất quán và hợp lệ. Nhưng khi chúng ta nhìn bằng cái nhìn của một programmer đưa ra những giả thiết hợp lý về class cơ sở, mô hình bị phá vỡ.
+
+Khi đánh giá một thiết kế cụ thể là đúng đắn, chúng ta không thể xem xét mô hình một cách độc lập. Ta phải xem xét dựa trên những giả thiết hợp lý từ những người sử dụng thiết kế đó. Thông thường, những giả thiết được yêu cầu trong khi viết unit test cho class cơ sở (test-driven development).
+
+Ngược lại, nếu chúng ta cố gắng dự đoán tất cả các giả thiết, ta có thể gây ra sự phức tạp không cần thiết (*needless complexity*) cho thiết kế. Do đó, tương tự như các nguyên lý khác, chúng ta chỉ nên tập trung vào các vi phạm LSP rõ ràng nhất làm thiết kế trở nên dễ vỡ.
+
+## IS-A là về hành vi
+
+Vậy chuyện gì đã xảy ra? Tại sao mô hình *Square* và *Rectangle* lại không tốt? Liệu đó có phải là một quan hệ IS-A?
+
+Từ góc nhìn của tác giả hàm *g* thì không. Object *Square* không phải là một object *Rectangle*. Tại sao? Vì hành vi của một object *Square* không giống với hành vi của một object *Rectangle*. Hay nói cách khác hình vuông không phải là hình chữ nhật. LSP làm rõ trong thiết kế hướng đối tượng (OOD), quan hệ IS-A thuộc về *hành vi* mà có thể đưa ra giả thiết một cách hợp lý từ người sử dụng.
+
+## Thiết kế dựa trên những giao kèo
+
+Nhiều người sẽ cảm thấy không thoải mái khi nghĩ về các hành vi được "*giả thiết hợp lý*". Làm thế nào để biết người sử dụng mong muốn gì? Có một kỹ thuật chỉ rõ các giả thiết hợp lý và bắt buộc đối với LSP gọi là "*thiết kế dựa trên giao kèo - Design by contract (DBC)*" đưa ra bởi Bertrand Meyer.
+
+Với DBC, tác giả của một class đặt ra các giao kèo cho class đó. Giao kèo thông báo các hành vi mà người khác có thể sử dụng. Giao kèo định nghĩa các điều kiện tiên quyết (preconditions) và các điều kiện sau (postconditions). Điều kiện tiên quyết phải thỏa mãn để phương thức thức hiện. Khi hoàn thành, phương thức đảm bảo rằng các điều kiện sau là đúng.
+
+Chúng ta có thể xem điều kiện sau của *Rectangle.Width* setter như sau:
+
+```C
+assert((width == w) && (height == old.height));
+```
+
+trong đó *old* là giá trị của *Rectangle* trước khi *Width* được gọi. Quy tắc cho các điều kiện tiên quyết và điều kiện sau của các lớp dẫn xuất được Meyer đưa ra:
+
+> Một hành vi được định nghĩa lại trong một lớp dẫn xuất chỉ có thể thay thế điều kiện tiên quyết bởi một điều kiện bằng hoặc yếu hơn, và thay thế điều kiện sau bằng một điều kiện bằng hoặc mạnh hơn.
+
+Nói cách khác, khi sử dụng một object thông qua interface của class cơ sở, người dùng chỉ biết các điều kiện tiên quyết và điều kiện sau của class cơ sở đó.
+
+* Vì vậy, object của class con không mong họ sẽ tuân thủ điều kiện tiên quyết mạnh hơn class cở sở. Người dùng chỉ phải tuân thủ những gì mà class cơ sở đã chấp nhận.
+* Tương tự, các class con phải thỏa mãn tất cả các điều kiện sau. Mọi hành vi và đầu ra không được vi phạm các ràng buộc của class cơ sở. Người dùng class cơ sở sẽ không phải lo lắng về đầu ra của class con.
+
+Ta có thể thấy điều kiện sau của *Square.Width* setter yếu hơn điều kiện sau của *Rectangle.Width* setter khi nó không đảm bảo ràng buộc *height == old.height*. Do đó thuộc tính *Width* của *Square* vi phạm giao kèo của class cơ sở.
+
+> Khái niệm *yếu hơn* hay bị nhầm lẫn. X là yếu hơn Y nếu X không thỏa mãn tất cả các ràng buộc của Y, không quan tâm là X thỏa mãn bao nhiêu ràng buộc khác.
+
+Một số ngôn ngũ như *Eiffel?* hỗ trợ trực tiếp cho điều kiện tiên quyết và điều kiện sau. Nhưng đa số ngôn ngữ khác như *C++* hay *Java* không có tính năng này. Tốt nhất là chúng ta comment các điều kiện cho từng hàm.
+
+## Xác định giao kèo ở Unit Test
+
+Giao kèo có thể được định nghĩa khi viết unit test. Bằng cách kiểm tra các hành vi của class, unit test đảm bảo hành vi của class. Cấc tác giả sử dụng class sẽ dựa trên unit test để đảm bảo các giả thiết hợp lý.
+
+(Ghi tiếp ở phần 2)
