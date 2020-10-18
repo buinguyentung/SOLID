@@ -1,13 +1,11 @@
 # Bốn tính chất cơ bản
 
-Lập trình hướng đối tượng (OOP) có 4 tính chất cơ bản là:
+Lập trình hướng đối tượng (OOP) có 4 tính chất cơ bản. Mỗi tính chất là một góc nhìn riêng biệt, cùng nhau định nghĩa nên OOP. Chúng là:
 
 + Tính kế thừa (inheritance)
 + Tính trừu tượng (virtualization)
 + Tính đóng gói (encapsulation)
 + Tính đa hình (virtualization)
-
-Mỗi tính chất là một góc nhìn riêng biệt, cùng nhau định nghĩa nên OOP.
 
 Trước khi đi vào chi tiết, ta hãy xem xét 4 tính chất thể hiện ở một tình huống cụ thể trong cuộc sống.
 
