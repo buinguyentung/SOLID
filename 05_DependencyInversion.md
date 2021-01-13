@@ -42,7 +42,71 @@ Minh họa 11-2 đưa ra một thiết kế phù hợp hơn. **Mỗi lớp ở c
 
 ## Ownership Inversion (Đảo ngược quyền sở hữu)
 
-TBU
+Sự đảo ngược ở đây không chỉ là sự phụ thuộc mà còn là quyền sở hữu interface. Chúng ta thường cho rằng các thư viện công cụ sở hữu interface của riêng chúng. Tuy nhiên khi áp dụng DIP, chúng ta thấy rằng **các client có xu hướng sở hữu abstract interface và các server của chúng xuất phát từ đó**.
+
+Note: Xem lại một chút định nghĩa Client và Server ở chương 9 (OCP). Client ám chỉ các lớp cấp cao, Server ám chỉ các lớp cấp thấp hơn.
+![image](https://user-images.githubusercontent.com/27339791/94213084-2ee40600-ff00-11ea-8a67-44c9aea17fae.png)
+
+Điều này thỉnh thoảng được gọi là nguyên tắc Hollywood: "*Đừng gọi cho chúng tôi, chúng tôi sẽ gọi bạn.*" Các module cấp thấp triển khai các interface được khai báo và gọi bởi các module cấp cap hơn.
+
+Sử dụng sự đảo ngược quyền sở hữu này, layer *Policy* không bị ảnh hưởng bởi sự thay đổi của layer *Mechanism* và *Utility*. Hơn nữa layer *Policy* có thể được tái sử dụng trong các ngữ cảnh có các module cấp thấp thỏa mãn *Policy Service Interface*. Do đó, bằng cách đảo ngược sự phụ thuộc, chúng ta tạo ra một cấu trúc linh hoạt hơn, bền hơn, và có tính di động.
+
+Trong ngữ cảnh này, quyền sở hữu đơn giản có nghĩa là quyền sở hữu các interface được phân phối giữa các client, không phải giữa các server triển khai chúng. **Interface nằm trong cùng package hoặc thư viện với client**. Điều này buộc các thư viện hoặc package của server phụ thuộc vào thư viện hoặc package của client.
+
+Dĩ nhiên, nhiều lúc chúng ta không muốn server phụ thuộc vào client. Điều này đặc biệt đúng khi có nhiều client nhưng chỉ có một server. Trong trường hợp đó, các client phải đồng ý sử dụng service interface và publish nó trong một package riêng biệt.
+
+## Dependence on Abstractions (Sự phụ thuộc vào Abstractions)
+
+Nói một cách tham lam về DIP: "Phụ thuộc vào abstractions". Chúng ta không nên phụ thuộc vào một lớp cụ thể, tất cả các quan hệ trong một chương trình nên thông qua một abstract class hoặc một interface.
+
+> Không biến nào nên giữ tham chiếu tới một class cụ thể.
+
+> Không class nào nên kế thừa từ một class cụ thể.
+
+> Không phương thức nào nên override một phương thức đã được triển khai trong bất kỳ base class nào của nó.
+
+Chắc chắn là tính tham lam này bị vi phạm ít nhất một lần trong mọi chương trình. Ai đó phải tạo các instance của các class cụ thể, và module đó sẽ phụ thuộc vào chúng. Hơn nữa, dường như không có lý do gì để tuân theo tính tham lam này cho các class cụ thể nhưng *nonvolatile* (nghĩa là class không bị thay đổi "bất thường"). Nếu một class cụ thể không thay đổi nhiều, và không có các dẫn xuất tương tự được tạo ra, không có nhược điểm mấy khi phụ thuộc vào class đó.
+
+Ví dụ, trong hầu hết hệ thống, class định nghĩa một string là class cụ thể. Trong C# là class *string*. Class này là nonvolatile. Nó không thay đổi thường xuyên. Vì vậy, không có hại gì khi phụ thuộc nó.
+
+Tuy nhiên, hầu hết các class cụ thể mà chúng ta viết ra trong chương trình là *volatile* (nghĩa là có khả năng thay đổi cao). Chúng ta không muốn phụ thuộc trực tiếp vào các class này. Sự dễ thay đổi của class có thể được vượt qua bằng cách giữ chúng đằng sau các abstract interface.
+
+Giải pháp này là không hoàn chỉnh. Có những khi interface của một volatile class phải thay đổi, và sự thay đổi này phải được lan truyền trong abstract interface đại diện cho class đó. Những sự thay đổi như vậy phá vỡ sự cô lập của abstract interface.
+
+Đó là lý do cho rằng sự tham lam có phần ngây thơ. Mặt khác, nếu chúng ta dành thời gian xem xét kỹ hơn các client module hoặc layer khai báo các service interface mà chúng cần, thì interface sẽ chỉ phải thay đổi khi yêu cầu của client thay đổi. Những sự thay đổi trong các class triển khai abstract interface sẽ không ảnh hưởng tới client.
+
+## Một ví dụ DIP đơn giản
+
+DIP có thể được áp dụng ở bất cứ chỗ nào mà một class gửi một message tới một class khác. Ví dụ trường hợp object *Button* và *Lamp*.
+
+Object *Button* nhận tác động từ bên ngoài. Khi nhận được message *Poll*, object *Button* xác định người dùng đã ấn nó hay chưa. Không quan trọng cơ chế xác nhận là gì, có thể là một button icon trên GUI, có thể là một button vật lý mà người dùng dùng tay để ấn, thậm chí có thể là một cảm biến chuyển động của hệ thống bảo vệ nhà. Object *Button* xác định là người dùng đã bật hay tắt nó.
+
+Object *Lamp* ảnh hưởng tới môi trường xung quanh. Khi nhận một message *TurnOn*, object *Lamp* bật đèn lên. Khi nhận message *TurnOff*, object *Lamp* tắt đèn. Cơ chế vật lý là không quan trọng.
+
+Làm thế nào chúng ta thiết kế một hệ thống mà object *Button* điều khiển object *Lamp*. Hình 11-3 minh họa một mô hình ngây thơ. Object *Button* nhận message *Poll*, xác định button đã được ấn hay chưa, và đơn giản gửi message *TurnOn* hoặc *TurnOff* tới *Lamp*.
+
+![image](https://user-images.githubusercontent.com/27339791/104173559-8c14b080-5438-11eb-9e39-256739570ef4.png)
+
+Tại sao nó lại ngây thơ? Xem xét code C# triển khai mô hình ở Listing 11-1. Để ý là class *Button* phụ thuộc trực tiếp vào class *Lamp*. Sự phụ thuộc này nghĩa là *Button* sẽ bị ảnh hưởng bởi các sự thay đổi của *Lamp*. Hơn nữa sẽ không thể tái sử dụng *Button* để điều khiển một object *Motor*. Trong mô hình này, object *Button* chỉ có thể điều khiển object *Lamp* mà thôi.
+
+![image](https://user-images.githubusercontent.com/27339791/104174425-165d1480-5439-11eb-9d9c-eae9c5af13cb.png)
+
+Giải pháp này vi phạm DIP. Luật cấp cao của ứng dụng không được tách rời với sự triển khai ở cấp thấp. Abstraction không được tách rời khỏi chi tiết. Không có sự chia tách này, luật cấp cao tự động phù thuộc vào module cấp thấp, và abstraction tự động phụ thuộc vào chi tiết.
+
+## Tìm Abstraction
+
+Luật cấp cao là gì? Đó là abstraction nằm dưới một ứng dụng, là sự thực bất biến khi các chi tiết bị thay đổi. Trong ví dụ Button/Lamp, abstraction bên dưới là xác định thao tác on/off của người dùng và chuyển hành vi đó tới object mục tiêu. Cơ chế để xác định thao tác on/off người dùng là gì? Không liên quan. Object mục tiêu là gì? Không liên quan. Những chi tiết đó không ảnh hưởng tới abstraction.
+
+Mô hình trong hình 11-3 có thể phát triển bằng cách đảo ngược sự phụ thuộc vào object *Lamp*. Trong hình 11-4, chúng ta thấy rằng bây giờ *Button* giữ một tham chiếu tới *ButtonServer*, cung cấp interface cho phép *Button* có thể bật/tắt một cái gì đó. *Lamp* triển khai interface *ButtonServer*. Do đó bây giờ *Lamp* sẽ phụ thuộc thay vì bị phụ thuộc vào.
+
+![image](https://user-images.githubusercontent.com/27339791/104176993-a3ed3400-543a-11eb-875a-34f1278883bc.png)
+
+Thiết kế trong hình 11-4 cho phép một *Button* điều khiển bất kỳ thiết bị nào mong muốn triển khai interface *ButtonServer*. Đó là tính linh hoạt. Nó cũng có nghĩa là object *Button* sẽ có thể điều khiển các object mà chưa được phát minh ra.
+
+Tuy nhiên, giải pháp này đưa ra một ràng buộc rằng bất kỳ object nào cần điều khiển bởi một *Button* thì phải triển khai interface *ButtonServer*. Điều không may bởi những object này có thể cũng muốn được điều khiển bởi object *Switch* hoặc các object khác ngoài *Button*.
+
+Bằng cách đảo ngược sự phụ thuộc và làm cho *Lamp* phụ thuộc thay vì bị phụ thuộc vào, chúng ta làm cho cho *Lamp* phụ thuộc vào một chi tiết khác: *Button*. Phải không?
+
 
 
 ## Tham khảo
