@@ -21,11 +21,13 @@ Không chỉ chứa dữ liệu, Model đồng thời cũng chịu trách nhiệ
 
 ## Một ví dụ về MVP
 
-![image](https://user-images.githubusercontent.com/27339791/112977641-7cc41a00-9180-11eb-967b-6007158b420d.png)
+![image](https://user-images.githubusercontent.com/27339791/113280296-49af9100-930e-11eb-850a-7d5b9df980c2.png)
 
 MainActivity có một cặp *Fragment1 - Presenter1*. Fragment1 triển khai IF *IFragment1Contract::IView*, Presenter1 triển khai IF *IFragment1Contract::IPresenter*.
 
-Fragment1 và Presenter1 tham chiếu lẫn nhau thông qua hai biến mPresenter và mView. Fragment1 gọi các hàm xử lý logic ở Presenter được khai báo trong interface **IPresenter**. Ở chiều ngược lại, *Presenter1* gọi các hàm trên view *Fragment1* được khai báo ở **IView**. 
+Fragment1 và Presenter1 tham chiếu lẫn nhau thông qua hai biến mPresenter và mView. Fragment1 gọi các hàm xử lý logic ở Presenter được khai báo trong interface **IPresenter**. Ở chiều ngược lại, *Presenter1* gọi các hàm trên view *Fragment1* được khai báo ở **IView**.
+
+*DbRepository* (Model) có nhiệm vụ query dữ liệu từ Database và trả về Presenter.
 
 ## So sánh MVP và MVVM
 
