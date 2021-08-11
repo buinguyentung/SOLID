@@ -11,12 +11,26 @@ An open platform allows us to containerize applications. Each runs with it own l
 ## Lessons
 
 * Section 1: Introduction
+> Introduce Docker, Container, Image, Dockerhub.
+
 * Section 2: Docker Commands
+> Get farmiliar with Docker commands
+
 * Section 3: Docker Run
+> Run Docker with options
+
 * Section 4: Docker Images
+> Create our own docker images with Dockerfile
+
 * Section 5: Docker Compose
+> Set up complex application running multiple services with configurations in YAML file
+
 * Section 6: Docker Registry
+> Understand where docker images are stored
+
 * Section 7: Docker Engine, Storage and Networking
+> Take a deeper look at Docker's architecture
+
 * Section 8: Docker on Mac & Windows
 * Section 9: Container Orchestration - Docker Swarm & Kubernetes
 * Section 10: Conclusion
