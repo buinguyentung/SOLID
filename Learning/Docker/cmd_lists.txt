@@ -13,6 +13,7 @@ docker ps
 docker ps -a
 docker run node
 docker stop node
+docker stop node -t 0 (stop without waiting)
 docker rm node
 
 docker images
@@ -50,6 +51,11 @@ docker run -v host_dir:container_dir image_name
 (/opt/datadir: host directory;
 /var/lib/mysql: local container directory)
 
++ List all volume
+docker volume ls
+Where is docker volume stored?
+/var/lib/docker/volumes/ 
+
 + ENV variable
 docker run -e APP_COLOR=blue simple-webapp-color
 
@@ -77,6 +83,7 @@ YAML file
 docker-compose up
 docker-compose stop
 docker-compose down
+docker-compose up --build -d
 
 docker run -d --name=redis redis
 docker run -d --name=db postgres
